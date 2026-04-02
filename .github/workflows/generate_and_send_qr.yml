@@ -1,0 +1,72 @@
+name: Generar y enviar QR WiFi
+
+on:
+  workflow_dispatch:
+    inputs:
+      ssid:
+        description: "Nombre de la red WiFi (SSID)"
+        required: true
+        type: string
+      security:
+        description: "Tipo de seguridad"
+        required: true
+        default: "WPA"
+        type: choice
+        options:
+          - WPA
+          - WEP
+          - nopass
+      hidden:
+        description: "¿Es una red oculta?"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  generate-and-send:
+    name: Generar QR y enviar por email
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Generar QR
+        env:
+          WIFI_SSID: ${{ inputs.ssid }}
+          WIFI_SECURITY: ${{ inputs.security }}
+          WIFI_PASSWORD: ${{ secrets.WIFI_PASSWORD }}
+          WIFI_HIDDEN: ${{ inputs.hidden }}
+        run: |
+          HIDDEN_FLAG=""
+          if [ "$WIFI_HIDDEN" = "true" ]; then HIDDEN_FLAG="--hidden"; fi
+
+          python generate_qr.py \
+            --ssid "$WIFI_SSID" \
+            --password "$WIFI_PASSWORD" \
+            --security "$WIFI_SECURITY" \
+            --output wifi_qr.png \
+            $HIDDEN_FLAG
+
+      - name: Enviar por email
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          EMAIL_FROM: ${{ vars.EMAIL_FROM }}
+          WIFI_SSID: ${{ inputs.ssid }}
+        run: python send_email.py wifi_qr.png
+
+      - name: Subir QR como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: wifi-qr-${{ inputs.ssid }}
+          path: wifi_qr.png
+          retention-days: 30
