@@ -2,25 +2,6 @@ name: Generar y enviar QR WiFi
 
 on:
   workflow_dispatch:
-    inputs:
-      ssid:
-        description: "Nombre de la red WiFi (SSID)"
-        required: true
-        type: string
-      security:
-        description: "Tipo de seguridad"
-        required: true
-        default: "WPA"
-        type: choice
-        options:
-          - WPA
-          - WEP
-          - nopass
-      hidden:
-        description: "¿Es una red oculta?"
-        required: false
-        default: false
-        type: boolean
 
 jobs:
   generate-and-send:
@@ -42,10 +23,10 @@ jobs:
 
       - name: Generar QR
         env:
-          WIFI_SSID: ${{ inputs.ssid }}
-          WIFI_SECURITY: ${{ inputs.security }}
+          WIFI_SSID: ${{ vars.WIFI_SSID }}
+          WIFI_SECURITY: ${{ vars.WIFI_SECURITY }}
           WIFI_PASSWORD: ${{ secrets.WIFI_PASSWORD }}
-          WIFI_HIDDEN: ${{ inputs.hidden }}
+          WIFI_HIDDEN: ${{ vars.WIFI_HIDDEN }}
         run: |
           HIDDEN_FLAG=""
           if [ "$WIFI_HIDDEN" = "true" ]; then HIDDEN_FLAG="--hidden"; fi
@@ -61,12 +42,12 @@ jobs:
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           EMAIL_FROM: ${{ vars.EMAIL_FROM }}
-          WIFI_SSID: ${{ inputs.ssid }}
+          WIFI_SSID: ${{ vars.WIFI_SSID }}
         run: python send_email.py wifi_qr.png
 
       - name: Subir QR como artefacto
         uses: actions/upload-artifact@v4
         with:
-          name: wifi-qr-${{ inputs.ssid }}
+          name: wifi-qr-${{ vars.WIFI_SSID }}
           path: wifi_qr.png
           retention-days: 30
