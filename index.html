@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generador de QR para WiFi</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📶 Generador de QR para WiFi</h1>
+      <p class="subtitle">Generá un código QR para que tus visitas se conecten fácilmente a tu red WiFi.</p>
+    </header>
+
+    <main>
+      <section class="form-section">
+        <form id="wifi-form">
+          <div class="form-group">
+            <label for="ssid">Nombre de la red (SSID)</label>
+            <input
+              type="text"
+              id="ssid"
+              name="ssid"
+              placeholder="MiRedWiFi"
+              required
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Contraseña</label>
+            <div class="password-wrapper">
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Contraseña de la red"
+                autocomplete="off"
+              />
+              <button type="button" id="toggle-password" aria-label="Mostrar u ocultar contraseña">
+                👁
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="security">Tipo de seguridad</label>
+            <select id="security" name="security">
+              <option value="WPA">WPA / WPA2 / WPA3</option>
+              <option value="WEP">WEP</option>
+              <option value="nopass">Sin contraseña (abierta)</option>
+            </select>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label>
+              <input type="checkbox" id="hidden" name="hidden" />
+              Red oculta
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="generate-btn">Generar QR</button>
+            <button type="button" id="clear-btn">Limpiar</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="qr-section" id="qr-section" hidden>
+        <div class="qr-card" id="qr-card">
+          <p class="qr-label">Escaneá para conectarte a:</p>
+          <p class="qr-ssid" id="qr-ssid-label"></p>
+          <div id="qr-canvas-wrapper"></div>
+          <p class="qr-hint">Apuntá la cámara del celular al código QR</p>
+        </div>
+        <div class="qr-actions no-print">
+          <button type="button" id="print-btn">🖨️ Imprimir</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="no-print">
+      <p>El código QR se genera localmente en tu navegador. Ningún dato se envía a servidores externos.</p>
+    </footer>
+  </div>
+
+  <!-- QR code library (MIT license, by Kazuhiko Arase) -->
+  <script src="qrcode.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
